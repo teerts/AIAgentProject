@@ -2,6 +2,7 @@ import os
 from functions.get_files_info import get_files_info
 from functions.get_file_content import get_file_content
 from functions.write_file import write_file
+from functions.run_python_file import run_python_file
 
 def run_tests():
     print("Result for current directory:")
@@ -42,6 +43,16 @@ def run_tests():
     print(f"    {result}")
     print("Result for writing to /tmp/temp.txt file:")
     result = write_file("calculator", "/tmp/temp.txt", "this should not be allowed")
+    print(f"    {result}")
+
+    print("Running a Python file:")
+    result = run_python_file("calculator", "main.py")
+    print(f"    {result}")
+    print("Running a Python file:")
+    result = run_python_file("calculator", "nonexistent.py")
+    print(f"    {result}")
+    print("Running a Python file:")
+    result = run_python_file("calculator", "../main.py")
     print(f"    {result}")
 
 

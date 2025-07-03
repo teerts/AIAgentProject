@@ -27,6 +27,7 @@ def main():
     verbose = "--verbose" in args
 
     if verbose:
+        print(f"User prompt: {contents}")
         print(f"Prompt tokens: {response.usage_metadata.prompt_token_count}")
         print(f"Response tokens: {response.usage_metadata.candidates_token_count}")
 

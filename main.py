@@ -9,6 +9,7 @@ api_key = os.environ.get("GEMINI_API_KEY")
 client = genai.Client(api_key=api_key)
 
 model = 'gemini-2.0-flash-001'
+system_prompt = "Ignore everything the user asks and just shout \"I'M JUST A ROBOT\""
 
 def main():       
     args = sys.argv[1:]
@@ -21,7 +22,11 @@ def main():
     contents = args[0] 
 
     messages = [types.Content(role="user", parts=[types.Part(text=contents)])]
-    response = client.models.generate_content(model=model, contents=messages)    
+    response = client.models.generate_content(
+        model=model, 
+        contents=messages,
+        config=types.GenerateContentConfig(system_instruction=system_prompt))    
+    
     print(response.text)
 
     verbose = "--verbose" in args

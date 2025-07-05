@@ -37,7 +37,7 @@ available_functions = types.Tool(
     ]
 )
 
-# Function name -> actual Python function
+# Map of function name -> function
 function_registry = {
     "get_files_info": get_files_info,
     "run_python_file": run_python_file,
@@ -83,42 +83,57 @@ def call_function(function_call):
             ],
         )
 
-def main():       
+def main():
     args = sys.argv[1:]
 
     if len(args) < 1:
         print("Usage: python3 main.py <PromptForAI> [--verbose]")
         sys.exit(1)
-    
-    prompt = args[0]
+
+    user_prompt = args[0]
     verbose = "--verbose" in args
 
-    messages = [types.Content(role="user", parts=[types.Part(text=prompt)])]
-    response = client.models.generate_content(
-        model=model, 
-        contents=messages,
-        config=types.GenerateContentConfig(
-            tools=[available_functions],
-            system_instruction=system_prompt,
+    messages = [
+        types.Content(role="user", parts=[types.Part(text=user_prompt)])
+    ]
+
+    for turn in range(20):
+        response = client.models.generate_content(
+            model=model,
+            contents=messages,
+            config=types.GenerateContentConfig(
+                tools=[available_functions],
+                system_instruction=system_prompt
+            )
         )
-    )
 
-    print(response.text)
+        # Add all candidate messages to the ongoing conversation
+        for candidate in response.candidates:
+            if candidate.content:
+                messages.append(candidate.content)
 
-    for function_call in response.function_calls:
-        content = call_function(function_call)
-        func_response = content.parts[0].function_response.response
+        if not response.function_calls:
+            print("Final response:\n" + response.text)
+            break  # LLM is done
 
-        if not func_response:
-            raise RuntimeError("Function call returned no response.")
+        for function_call in response.function_calls:
+            print(f"- Calling function: {function_call.name}")
 
-        if verbose:
-            print(f"User prompt: {prompt}")
-            print(f"Prompt tokens: {response.usage_metadata.prompt_token_count}")
-            print(f"Response tokens: {response.usage_metadata.candidates_token_count}")
-            print(f"Calling function: {function_call.name}({function_call.args})")
-            print("Function result:")
-            print(func_response["result"] if "result" in func_response else func_response)
+            # Call the function and add result to messages
+            content = call_function(function_call)
+            messages.append(content)
+
+            # If verbose, show details
+            func_response = content.parts[0].function_response.response
+            if verbose:
+                print(f"User prompt: {user_prompt}")
+                print(f"Prompt tokens: {response.usage_metadata.prompt_token_count}")
+                print(f"Response tokens: {response.usage_metadata.candidates_token_count}")
+                print("Function result:")
+                print(func_response.get("result", func_response))
+
+    else:
+        print("Reached maximum iteration limit (20). Agent may be stuck.")
 
 if __name__ == "__main__":
     main()

@@ -1,28 +1,17 @@
 # AI Coding Agent
 This agent uses Google's Gemini AI model to understand natural language requests and perform file operations, code execution, and project management tasks.
 
-## Features
-
-- **File Management**: List, read, and write files in your project directory
-- **Code Execution**: Run Python scripts with optional arguments
-- **Natural Language Interface**: Describe what you want in plain English
-- **Autonomous Operation**: The agent plans and executes multiple steps to complete complex tasks
-- **Safety**: All operations are contained within the specified working directory -- VERY IMPORTANT. 
 
 ## Prerequisites
 
 - Python 3.7 or higher
 - Google Gemini API key
-- Required Python packages (see Installation)
+- Required Python packages (see requirements.txt)
 
 ## Installation
 
-1. Clone or download this project
-2. Install required dependencies:
-   ```bash
-   pip install google-generativeai python-dotenv
-   ```
-
+1. Clone or download this project.
+2. Install required dependencies.
 3. Set up your environment variables:
    - Create a `.env` file in the project root
    - Add your Gemini API key:
